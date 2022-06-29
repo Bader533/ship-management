@@ -17,10 +17,10 @@ class PermissionSeeder extends Seeder
     {
 
         /*  ****** admin ******  */
-        // Permission::create(['name' => 'Create-Shippment', 'guard_name' => 'admin']);
-        // Permission::create(['name' => 'Read-Shippments', 'guard_name' => 'admin']);
-        // Permission::create(['name' => 'Update-Shippment', 'guard_name' => 'admin']);
-        // Permission::create(['name' => 'Delete-Shippment', 'guard_name' => 'admin']);
+        Permission::create(['name' => 'Create-Shippment', 'guard_name' => 'admin']);
+        Permission::create(['name' => 'Read-Shippments', 'guard_name' => 'admin']);
+        Permission::create(['name' => 'Update-Shippment', 'guard_name' => 'admin']);
+        Permission::create(['name' => 'Delete-Shippment', 'guard_name' => 'admin']);
 
         Permission::create(['name' => 'Create-User', 'guard_name' => 'admin']);
         Permission::create(['name' => 'Read-Users', 'guard_name' => 'admin']);
@@ -36,11 +36,13 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'Read-Drivers', 'guard_name' => 'admin']);
         Permission::create(['name' => 'Update-Driver', 'guard_name' => 'admin']);
         Permission::create(['name' => 'Delete-Driver', 'guard_name' => 'admin']);
-        /* ****** admin ****** */
 
-        /* ****** employee ****** */
+        /* ****************************** end admin ****************************** */
+
+        /* ****************************** employee ****************************** */
         Permission::create(['name' => 'Create-Shippment', 'guard_name' => 'employee']);
         Permission::create(['name' => 'Read-Shippments', 'guard_name' => 'employee']);
+        Permission::create(['name' => 'Show-Shippment', 'guard_name' => 'admin']);
         Permission::create(['name' => 'Update-Shippment', 'guard_name' => 'employee']);
         Permission::create(['name' => 'Delete-Shippment', 'guard_name' => 'employee']);
 
@@ -58,9 +60,9 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'Read-Drivers', 'guard_name' => 'employee']);
         Permission::create(['name' => 'Update-Driver', 'guard_name' => 'employee']);
         Permission::create(['name' => 'Delete-Driver', 'guard_name' => 'employee']);
-        /* ****** employee ****** */
+        /* ****************************** end employee ****************************** */
 
-        /* ****** web ****** */
+        /* ****************************** web ****************************** */
         Permission::create(['name' => 'Create-Pickup', 'guard_name' => 'web']);
         Permission::create(['name' => 'Read-Pickups', 'guard_name' => 'web']);
         Permission::create(['name' => 'Update-Pickup', 'guard_name' => 'web']);
@@ -68,8 +70,9 @@ class PermissionSeeder extends Seeder
 
         Permission::create(['name' => 'Create-Shippment', 'guard_name' => 'web']);
         Permission::create(['name' => 'Read-Shippments', 'guard_name' => 'web']);
+        Permission::create(['name' => 'Show-Shippment', 'guard_name' => 'web']);
         Permission::create(['name' => 'Update-Shippment', 'guard_name' => 'web']);
         Permission::create(['name' => 'Delete-Shippment', 'guard_name' => 'web']);
-        /* ****** web ****** */
+        /* ****************************** end web ****************************** */
     }
 }

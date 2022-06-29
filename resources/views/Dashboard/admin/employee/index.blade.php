@@ -162,7 +162,7 @@
                     <!--end::Svg Icon-->Export
                 </button> --}}
                 <!--begin::Add shipment-->
-
+                @canany(['Create-Employee'])
                 <a href="{{route('employee.create')}}" class="btn btn-primary">
                     <!--begin::Svg Icon | path: icons/duotune/arrows/arr075.svg-->
                     <span class="svg-icon svg-icon-2">
@@ -174,6 +174,7 @@
                     </span>
                     <!--end::Svg Icon-->{{__('site.add_employee')}}
                 </a>
+                @endcanany
                 <!--end::Add shipment-->
 
             </div>
@@ -279,16 +280,22 @@
                             {{-- <div class="menu-item px-3">
                                 <a href="{{route('shipment.show',$user->id)}}" class="menu-link px-3">show</a>
                             </div> --}}
+                            @canany(['Update-Employee'])
+
                             <div class="menu-item px-3">
                                 <a href="{{route('employee.edit',$employee->id)}}"
                                     class="menu-link px-3">{{__('site.edit')}}</a>
                             </div>
+
+                            @endcanany
                             <!--end::Menu item-->
                             <!--begin::Menu item-->
+                            @canany(['Delete-Employee'])
                             <div class="menu-item px-3">
                                 <a href="#" onclick="confirmDelete('{{$employee->id}}',this)" class="menu-link px-3"
                                     data-kt-users-table-filter="delete_row">Delete</a>
                             </div>
+                            @endcanany
                             <!--end::Menu item-->
                         </div>
                         <!--end::Menu-->

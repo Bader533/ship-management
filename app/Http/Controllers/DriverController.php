@@ -6,6 +6,7 @@ use App\Models\Driver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 
 class DriverController extends Controller
@@ -17,8 +18,12 @@ class DriverController extends Controller
      */
     public function index()
     {
-        $driver = Driver::all();
-        return view('Dashboard.admin.driver.index', ['driver' => $driver]);
+        if (!Gate::allows('Read-Drivers')) {
+            abort(403);
+        } else {
+            $driver = Driver::all();
+            return view('Dashboard.admin.driver.index', ['driver' => $driver]);
+        }
     }
 
     /**
@@ -28,8 +33,12 @@ class DriverController extends Controller
      */
     public function create()
     {
-        $roles = Role::where('guard_name', '=', 'driver')->get();
-        return view('Dashboard.admin.driver.create', ['roles' => $roles]);
+        if (!Gate::allows('Create-Driver')) {
+            abort(403);
+        } else {
+            $roles = Role::where('guard_name', '=', 'driver')->get();
+            return view('Dashboard.admin.driver.create', ['roles' => $roles]);
+        }
     }
 
     /**
@@ -40,39 +49,43 @@ class DriverController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator($request->all(), [
-            'name' => 'required | max:50',
-            'email' => 'required|string | min:2 |max:20',
-            'phone' => 'required |numeric|digits:11',
-            'password' => 'required',
-            'password_confirmation' => 'required',
-            'role_id' => 'required|numeric|exists:roles,id',
-
-        ]);
-        if (!$validator->fails()) {
-            $driver = new Driver();
-            $driver->name = $request->input('name');
-            $driver->email = $request->input('email') . '@shipexeg.com';
-            $driver->phone = $request->input('phone');
-            if (!$request->input('special_pickup')) {
-                $driver->special_pickup = 10;
-            } else {
-                $driver->special_pickup = $request->input('special_pickup');
-            }
-
-            $driver->password = Hash::make($request->input('password'));
-            $isSaved = $driver->save();
-            if ($isSaved) {
-                $driver->syncRoles(Role::findById($request->input('role_id'), 'driver'));
-            }
-            return response()->json(
-                [
-                    'message' => $isSaved ? 'driver created successfully' : 'Create failed!'
-                ],
-                $isSaved ? Response::HTTP_CREATED : Response::HTTP_BAD_REQUEST,
-            );
+        if (!Gate::allows('Create-Driver')) {
+            abort(403);
         } else {
-            return response()->json(['message' => $validator->getMessageBag()->first()], Response::HTTP_BAD_REQUEST);
+            $validator = Validator($request->all(), [
+                'name' => 'required | max:50',
+                'email' => 'required|string | min:2 |max:20',
+                'phone' => 'required |numeric|digits:11',
+                'password' => 'required',
+                'password_confirmation' => 'required',
+                'role_id' => 'required|numeric|exists:roles,id',
+
+            ]);
+            if (!$validator->fails()) {
+                $driver = new Driver();
+                $driver->name = $request->input('name');
+                $driver->email = $request->input('email') . '@shipexeg.com';
+                $driver->phone = $request->input('phone');
+                if (!$request->input('special_pickup')) {
+                    $driver->special_pickup = 10;
+                } else {
+                    $driver->special_pickup = $request->input('special_pickup');
+                }
+
+                $driver->password = Hash::make($request->input('password'));
+                $isSaved = $driver->save();
+                if ($isSaved) {
+                    $driver->syncRoles(Role::findById($request->input('role_id'), 'driver'));
+                }
+                return response()->json(
+                    [
+                        'message' => $isSaved ? 'driver created successfully' : 'Create failed!'
+                    ],
+                    $isSaved ? Response::HTTP_CREATED : Response::HTTP_BAD_REQUEST,
+                );
+            } else {
+                return response()->json(['message' => $validator->getMessageBag()->first()], Response::HTTP_BAD_REQUEST);
+            }
         }
     }
 
@@ -96,8 +109,12 @@ class DriverController extends Controller
     public function edit(Driver $driver)
     {
         // $driver = Driver::findOrFail($id);
-        $roles = Role::where('guard_name', '=', 'driver')->get();
-        return view('Dashboard.admin.driver.edit', ['driver' => $driver, 'roles' => $roles]);
+        if (!Gate::allows('Update-Driver', $driver)) {
+            abort(403);
+        } else {
+            $roles = Role::where('guard_name', '=', 'driver')->get();
+            return view('Dashboard.admin.driver.edit', ['driver' => $driver, 'roles' => $roles]);
+        }
     }
 
     /**
@@ -109,36 +126,40 @@ class DriverController extends Controller
      */
     public function update(Request $request, Driver $driver)
     {
-        $validator = Validator($request->all(), [
-            'name' => ' max:50',
-            'email' => 'string',
-            'phone' => 'numeric|digits:11',
-            'special_pickup' => 'numeric',
-            'role_id' => 'required|numeric|exists:roles,id',
-
-        ]);
-
-        if (!$validator->fails()) {
-
-
-            $driver->name = $request->input('name');
-            $driver->email = $request->input('email') . '@shipexeg.com';
-            $driver->phone = $request->input('phone');
-            $driver->password = Hash::make($request->input('password'));
-            $driver->special_pickup = $request->input('special_pickup');
-            $isSaved = $driver->save();
-            if ($isSaved) {
-                $driver->syncRoles(Role::findById($request->input('role_id'), 'driver'));
-            }
-
-            return response()->json(
-                [
-                    'message' => $isSaved ? 'driver updated successfully' : 'Create failed!'
-                ],
-                $isSaved ? Response::HTTP_CREATED : Response::HTTP_BAD_REQUEST,
-            );
+        if (!Gate::allows('Update-Driver', $driver)) {
+            abort(403);
         } else {
-            return response()->json(['message' => $validator->getMessageBag()->first()], Response::HTTP_BAD_REQUEST);
+            $validator = Validator($request->all(), [
+                'name' => ' max:50',
+                'email' => 'string',
+                'phone' => 'numeric|digits:11',
+                'special_pickup' => 'numeric',
+                'role_id' => 'required|numeric|exists:roles,id',
+
+            ]);
+
+            if (!$validator->fails()) {
+
+
+                $driver->name = $request->input('name');
+                $driver->email = $request->input('email') . '@shipexeg.com';
+                $driver->phone = $request->input('phone');
+                $driver->password = Hash::make($request->input('password'));
+                $driver->special_pickup = $request->input('special_pickup');
+                $isSaved = $driver->save();
+                if ($isSaved) {
+                    $driver->syncRoles(Role::findById($request->input('role_id'), 'driver'));
+                }
+
+                return response()->json(
+                    [
+                        'message' => $isSaved ? 'driver updated successfully' : 'Create failed!'
+                    ],
+                    $isSaved ? Response::HTTP_CREATED : Response::HTTP_BAD_REQUEST,
+                );
+            } else {
+                return response()->json(['message' => $validator->getMessageBag()->first()], Response::HTTP_BAD_REQUEST);
+            }
         }
     }
 
@@ -150,10 +171,14 @@ class DriverController extends Controller
      */
     public function destroy(Driver $driver)
     {
-        $isDeleted = $driver->delete();
-        return response()->json(
-            ['message' => $isDeleted ? 'Deleted successfully' : 'Delete failed!'],
-            $isDeleted ? Response::HTTP_OK : Response::HTTP_BAD_REQUEST
-        );
+        if (!Gate::allows('Delete-Driver', $driver)) {
+            abort(403);
+        } else {
+            $isDeleted = $driver->delete();
+            return response()->json(
+                ['message' => $isDeleted ? 'Deleted successfully' : 'Delete failed!'],
+                $isDeleted ? Response::HTTP_OK : Response::HTTP_BAD_REQUEST
+            );
+        }
     }
 }

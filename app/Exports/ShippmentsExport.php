@@ -14,25 +14,36 @@ class ShippmentsExport implements FromCollection
     // {
     //     return Shippment::all();
     // }
-    public $from;
-    public $to;
+    // public $from;
+    // public $to;
 
-    function __construct($from, $to)
-    {
-        $this->from = $from;
-        $this->to = $to;
-    }
+    // function __construct($from, $to)
+    // {
+    //     $this->from = $from;
+    //     $this->to = $to;
+    // }
 
     public function collection()
     {
-
-
-        $startDate = $this->from;
-        $endDate = $this->to;
-        $data = Shippment::with('city', 'area')->where('id', auth()->user()->id)
-            ->where('created_at', '>=', $startDate)
-            ->where('created_at', '<=', $endDate)->get();
-        // dd($data);
-        return $data;
+        return;
+    }
+    public function headings(): array
+    {
+        return [
+            'shippment_type',
+            'shipper_name',
+            'area',
+            'area',
+            'business_referance',
+            'receiver_name',
+            'shippment_type',
+            'phone_number',
+            'allow_open',
+            'price',
+            'package_details',
+            'address',
+            'note',
+            '*.status',
+        ];
     }
 }

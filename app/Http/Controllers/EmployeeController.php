@@ -7,10 +7,17 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 
 class EmployeeController extends Controller
 {
+
+    public function __construct()
+    {
+        // $this->authorizeResource(Employee::class, 'employee');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -18,8 +25,12 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        $employee = Employee::all();
-        return view('Dashboard.admin.employee.index', ['employee' => $employee]);
+        if (!Gate::allows('Read-Employees')) {
+            abort(403);
+        } else {
+            $employee = Employee::all();
+            return view('Dashboard.admin.employee.index', ['employee' => $employee]);
+        }
     }
 
     /**
@@ -29,8 +40,12 @@ class EmployeeController extends Controller
      */
     public function create()
     {
-        $roles = Role::where('guard_name', '=', 'employee')->get();
-        return view('Dashboard.admin.employee.create', ['roles' => $roles]);
+        if (!Gate::allows('Create-Employee')) {
+            abort(403);
+        } else {
+            $roles = Role::where('guard_name', '=', 'employee')->get();
+            return view('Dashboard.admin.employee.create', ['roles' => $roles]);
+        }
     }
 
     /**
@@ -41,34 +56,38 @@ class EmployeeController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator($request->all(), [
-            'name' => 'required | max:50',
-            'email' => 'required|string | min:2 |max:20',
-            'phone' => 'required |numeric|digits:11',
-            'password' => 'required',
-            'password_confirmation' => 'required',
-            'role_id' => 'required|numeric|exists:roles,id',
-
-
-        ]);
-        if (!$validator->fails()) {
-            $employee = new Employee();
-            $employee->name = $request->input('name');
-            $employee->email = $request->input('email') . '@shipexeg.com';
-            $employee->phone = $request->input('phone');
-            $employee->password = Hash::make($request->input('password'));
-            $isSaved = $employee->save();
-            if ($isSaved) {
-                $employee->syncRoles(Role::findById($request->input('role_id'), 'employee'));
-            }
-            return response()->json(
-                [
-                    'message' => $isSaved ? 'employee created successfully' : 'Create failed!'
-                ],
-                $isSaved ? Response::HTTP_CREATED : Response::HTTP_BAD_REQUEST,
-            );
+        if (!Gate::allows('Create-Employee')) {
+            abort(403);
         } else {
-            return response()->json(['message' => $validator->getMessageBag()->first()], Response::HTTP_BAD_REQUEST);
+            $validator = Validator($request->all(), [
+                'name' => 'required | max:50',
+                'email' => 'required|string | min:2 |max:20',
+                'phone' => 'required |numeric|digits:11',
+                'password' => 'required',
+                'password_confirmation' => 'required',
+                'role_id' => 'required|numeric|exists:roles,id',
+
+
+            ]);
+            if (!$validator->fails()) {
+                $employee = new Employee();
+                $employee->name = $request->input('name');
+                $employee->email = $request->input('email') . '@shipexeg.com';
+                $employee->phone = $request->input('phone');
+                $employee->password = Hash::make($request->input('password'));
+                $isSaved = $employee->save();
+                if ($isSaved) {
+                    $employee->syncRoles(Role::findById($request->input('role_id'), 'employee'));
+                }
+                return response()->json(
+                    [
+                        'message' => $isSaved ? 'employee created successfully' : 'Create failed!'
+                    ],
+                    $isSaved ? Response::HTTP_CREATED : Response::HTTP_BAD_REQUEST,
+                );
+            } else {
+                return response()->json(['message' => $validator->getMessageBag()->first()], Response::HTTP_BAD_REQUEST);
+            }
         }
     }
 
@@ -80,8 +99,12 @@ class EmployeeController extends Controller
      */
     public function show(Employee $employee)
     {
-        $user = User::all();
-        return view('Dashboard.admin.search', ['user' => $user]);
+        if (!Gate::allows('Read-Shippments')) {
+            abort(403);
+        } else {
+            $user = User::all();
+            return view('Dashboard.admin.search', ['user' => $user]);
+        }
     }
 
     /**
@@ -92,8 +115,12 @@ class EmployeeController extends Controller
      */
     public function edit(Employee $employee)
     {
-        $roles = Role::where('guard_name', '=', 'employee')->get();
-        return view('Dashboard.admin.employee.edit', ['employee' => $employee, 'roles' => $roles]);
+        if (!Gate::allows('Update-Employee', $employee)) {
+            abort(403);
+        } else {
+            $roles = Role::where('guard_name', '=', 'employee')->get();
+            return view('Dashboard.admin.employee.edit', ['employee' => $employee, 'roles' => $roles]);
+        }
     }
 
     /**
@@ -105,35 +132,39 @@ class EmployeeController extends Controller
      */
     public function update(Request $request, Employee $employee)
     {
-        $validator = Validator($request->all(), [
-            'name' => ' max:50',
-            'email' => 'string',
-            'phone' => 'numeric|digits:11',
-            'role_id' => 'required|numeric|exists:roles,id',
-
-
-        ]);
-
-        if (!$validator->fails()) {
-
-
-            $employee->name = $request->input('name');
-            $employee->email = $request->input('email') . '@shipexeg.com';
-            $employee->phone = $request->input('phone');
-            $employee->password = Hash::make($request->input('password'));
-            $isSaved = $employee->save();
-            if ($isSaved) {
-                $employee->syncRoles(Role::findById($request->input('role_id'), 'employee'));
-            }
-
-            return response()->json(
-                [
-                    'message' => $isSaved ? 'employee updated successfully' : 'Create failed!'
-                ],
-                $isSaved ? Response::HTTP_CREATED : Response::HTTP_BAD_REQUEST,
-            );
+        if (!Gate::allows('Update-Employee', $employee)) {
+            abort(403);
         } else {
-            return response()->json(['message' => $validator->getMessageBag()->first()], Response::HTTP_BAD_REQUEST);
+            $validator = Validator($request->all(), [
+                'name' => ' max:50',
+                'email' => 'string',
+                'phone' => 'numeric|digits:11',
+                'role_id' => 'required|numeric|exists:roles,id',
+
+
+            ]);
+
+            if (!$validator->fails()) {
+
+
+                $employee->name = $request->input('name');
+                $employee->email = $request->input('email') . '@shipexeg.com';
+                $employee->phone = $request->input('phone');
+                $employee->password = Hash::make($request->input('password'));
+                $isSaved = $employee->save();
+                if ($isSaved) {
+                    $employee->syncRoles(Role::findById($request->input('role_id'), 'employee'));
+                }
+
+                return response()->json(
+                    [
+                        'message' => $isSaved ? 'employee updated successfully' : 'Create failed!'
+                    ],
+                    $isSaved ? Response::HTTP_CREATED : Response::HTTP_BAD_REQUEST,
+                );
+            } else {
+                return response()->json(['message' => $validator->getMessageBag()->first()], Response::HTTP_BAD_REQUEST);
+            }
         }
     }
 
@@ -145,10 +176,15 @@ class EmployeeController extends Controller
      */
     public function destroy(Employee $employee)
     {
-        $isDeleted = $employee->delete();
-        return response()->json(
-            ['message' => $isDeleted ? 'Deleted successfully' : 'Delete failed!'],
-            $isDeleted ? Response::HTTP_OK : Response::HTTP_BAD_REQUEST
-        );
+        if (!Gate::allows('Delete-Employee', $employee)) {
+            abort(403);
+        } else {
+
+            $isDeleted = $employee->delete();
+            return response()->json(
+                ['message' => $isDeleted ? 'Deleted successfully' : 'Delete failed!'],
+                $isDeleted ? Response::HTTP_OK : Response::HTTP_BAD_REQUEST
+            );
+        }
     }
 }

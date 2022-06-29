@@ -169,7 +169,7 @@
                     <!--end::Svg Icon-->Export
                 </button> --}}
                 <!--begin::Add shipment-->
-
+                @canany(['Create-Pickup'])
                 <a href="{{route('pickup.create')}}" class="btn btn-primary">
                     <!--begin::Svg Icon | path: icons/duotune/arrows/arr075.svg-->
                     <span class="svg-icon svg-icon-2">
@@ -182,6 +182,7 @@
                     <!--end::Svg Icon-->{{__('site.add_pickup')}}
                 </a>
                 <!--end::Add shipment-->
+                @endcanany
 
             </div>
             <!--end::Toolbar-->

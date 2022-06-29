@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Gate;
 use App\Exports\ShippmentsExport;
 use App\Imports\ShippmentImport;
 use App\Models\AccountSeller;
@@ -228,10 +229,14 @@ class Controller extends BaseController
     // get all shipment with driver to admin with advanced search
     function getshipment()
     {
-        $delivery = Delivery::with('driver', 'shippment')->get();
-        // dd($delivery[1]->shippment->user->name);
-        $drivers = Driver::all();
-        return view('Dashboard.admin.search', ['delivery' => $delivery, 'driver' => $drivers]);
+        if (!Gate::allows('Read-Shippments')) {
+            abort(403);
+        } else {
+            $delivery = Delivery::with('driver', 'shippment')->get();
+            // dd($delivery[1]->shippment->user->name);
+            $drivers = Driver::all();
+            return view('Dashboard.admin.search', ['delivery' => $delivery, 'driver' => $drivers]);
+        }
     }
 
     // get one shipment after do scan using driver or emplyee
@@ -948,14 +953,14 @@ class Controller extends BaseController
         return view('Dashboard.user.address', ['city' => $city]);
     }
 
-    function exportShippment(Request $request)
+    function exportShippment()
     {
 
-        $startDate = $request->from;
-        $endDate = $request->to;
+        // $startDate = $request->from;
+        // $endDate = $request->to;
 
         $date = date('Y-m-d H:i:s');
-        return Excel::download(new ShippmentsExport($startDate, $endDate), 'shippment_' . $date . '.xlsx');
+        return Excel::download(new ShippmentsExport(), 'shippment_' . $date . '.xlsx');
     }
 
     //import data
@@ -983,5 +988,11 @@ class Controller extends BaseController
         //         'withErrors' =>  'Error ! Check The File'
         //     ],
         // );
+    }
+    function downloadExcel()
+    {
+        $path = Storage::disk('public')->path('excel/ship.xlsx');
+        $headers = file_get_contents($path);
+        return Response($headers)->withHeaders(['Content-Type' => mime_content_type($path)]);
     }
 }

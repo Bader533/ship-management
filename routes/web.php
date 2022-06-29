@@ -19,7 +19,11 @@ use App\Http\Controllers\ShippmentController;
 use App\Http\Controllers\SpecialpriceController;
 use App\Http\Controllers\TrackingController;
 use App\Http\Controllers\UserController;
+use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -47,7 +51,7 @@ Route::middleware('guest:web,admin,employee,driver')->group(function () {
 Route::group(
     [
         'prefix' => LaravelLocalization::setLocale(),
-        'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath', 'auth:web,admin,employee,driver']
+        'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath', 'auth:admin,employee,web']
     ],
     function () {
 
@@ -72,8 +76,7 @@ Route::group(
             Route::resource('specialprice', SpecialpriceController::class);
 
             Route::resource('address', AddressController::class);
-            Route::resource('shipment', ShippmentController::class);
-            Route::resource('pickup', PickupController::class);
+
             Route::resource('account', AccountSellerController::class);
             Route::resource('ScheduleSeller', ScheduleSellerController::class);
             Route::resource('assignedpickup', AssignedpickupController::class);
@@ -87,12 +90,10 @@ Route::group(
             Route::get('users', [Controller::class, 'index'])->name('account.user');
             Route::post('/user/sitting/fetch/', [Controller::class, 'fetch'])->name('dynamicdependent.fetch');
             Route::post('/user/sitting/fetch2/', [Controller::class, 'fetch2'])->name('dynamicdependent.fetch2');
-            Route::get('/admin/all-shipment', [Controller::class, 'getshipment'])->name('getshipment');
             Route::post('/shipment/scan', [Controller::class, 'getshipmentscan'])->name('scan');
             Route::post('/shipment/status/{id}', [Controller::class, 'getshipmentstatus'])->name('getshipmentstatus');
-            Route::get('/shippment/{id}', [Controller::class, 'getshipmentstatusid'])->name('getshipmentstatusid');
 
-            Route::get('/driver/shipment/delivery', [Controller::class, 'drivershipment'])->name('driver.shipment');
+
             // change the status from driver
             Route::post('/driver/shipment/status', [Controller::class, 'changestatue'])->name('driver.status');
             Route::post('/driver/shipment/status/onhold', [Controller::class, 'changestatue_onhold'])->name('changestatue_onhold');
@@ -119,17 +120,44 @@ Route::group(
             Route::get('printdrivershipments', [Controller::class, 'print_driver_shipments'])->name('printdrivershipments');
 
             Route::get('address', [Controller::class, 'getCity'])->name('getCity');
-            Route::get('export', [Controller::class, 'exportShippment'])->name('export_shippment');
+            Route::get('download-Excel', [Controller::class, 'downloadExcel'])->name('download.Excel');
+            // Route::get('download', function () {
+            //     $path = Storage::disk('public')->path('excel/ship.xlsx');
+            //     $headers = file_get_contents($path);
+            //     return Response($headers)->withHeaders(['Content-Type' => mime_content_type($path)]);
+            // });
 
-            // import shippment
-            Route::get('import', [Controller::class, 'viewimport'])->name('view.import');
-            Route::post('import', [Controller::class, 'importShippment'])->name('import.Shippment');
+
+
+
+
+            // Route::get('export', [Controller::class, 'exportShippment'])->name('export_shippment');
+
+
 
 
             Route::resource('roles', RoleController::class);
             Route::resource('permissions', PermissionController::class);
             Route::post('role/update-permission', [RoleController::class, 'updateRolePermission']);
 
+            Route::middleware('auth:web,admin,employee')->group(function () {
+                /* ********driver******** */
+                // Route::get('/', [Controller::class, 'home_page'])->name('app');
+                Route::get('/admin/all-shipment', [Controller::class, 'getshipment'])->name('getshipment');
+                Route::get('/driver/shipment/delivery', [Controller::class, 'drivershipment'])->name('driver.shipment');
+                Route::view('/scan', 'Dashboard.admin.scanner')->name('open.scan');
+                Route::get('/shippment/{id}', [Controller::class, 'getshipmentstatusid'])->name('getshipmentstatusid');
+                /* ********driver******** */
+            });
+            Route::middleware('auth:web,admin,employee')->group(function () {
+                /* ********user******** */
+                Route::resource('shipment', ShippmentController::class);
+                Route::resource('pickup', PickupController::class);
+                /* ********user******** */
+                // import shippment
+                Route::get('import', [Controller::class, 'viewimport'])->name('view.import');
+                Route::post('import', [Controller::class, 'importShippment'])->name('import.Shippment');
+            });
 
             /* ############################### end user ############################### */
         });

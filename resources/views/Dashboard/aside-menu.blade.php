@@ -131,14 +131,17 @@
 
             {{-- ======================== HR ========================= --}}
 
-            @hasrole('HR-Admin')
+            {{-- @hasrole('HR-Admin') --}}
 
+            @canany(['Create-User','Read-Users','Create-Employee','Read-Employees','Create-Driver','Read-Drivers'])
             <div class="menu-item">
                 <div class="menu-content pt-8 pb-0">
                     <span class="menu-section text-muted text-uppercase fs-8 ls-1">HR</span>
                 </div>
             </div>
+            @endcanany
 
+            @canany(['Create-User','Read-Users'])
             <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
                 <span class="menu-link">
                     <span class="menu-icon">
@@ -160,6 +163,7 @@
                     <span class="menu-arrow"></span>
                 </span>
                 <div class="menu-sub menu-sub-accordion menu-active-bg">
+                    @canany(['Read-Users'])
                     <div class="menu-item">
                         <a class="menu-link" href="{{route('user.index')}}">
                             <span class="menu-bullet">
@@ -168,6 +172,8 @@
                             <span class="menu-title">{{__('site.seller_list')}}</span>
                         </a>
                     </div>
+                    @endcanany
+                    @canany(['Create-User'])
                     <div class="menu-item">
                         <a class="menu-link" href="{{route('user.create')}}">
                             <span class="menu-bullet">
@@ -176,10 +182,12 @@
                             <span class="menu-title">{{__('site.add_seller')}}</span>
                         </a>
                     </div>
-
+                    @endcanany
                 </div>
             </div>
+            @endcanany
 
+            @canany(['Create-Driver','Read-Drivers'])
             <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
                 <span class="menu-link">
                     <span class="menu-icon">
@@ -201,6 +209,7 @@
                     <span class="menu-arrow"></span>
                 </span>
                 <div class="menu-sub menu-sub-accordion menu-active-bg">
+                    @canany(['Read-Drivers'])
                     <div class="menu-item">
                         <a class="menu-link" href="{{route('driver.index')}}">
                             <span class="menu-bullet">
@@ -209,6 +218,8 @@
                             <span class="menu-title">{{__('site.driver_list')}}</span>
                         </a>
                     </div>
+                    @endcanany
+                    @canany(['Create-Driver'])
                     <div class="menu-item">
                         <a class="menu-link" href="{{route('driver.create')}}">
                             <span class="menu-bullet">
@@ -217,11 +228,12 @@
                             <span class="menu-title">{{__('site.add_driver')}}</span>
                         </a>
                     </div>
-
+                    @endcanany
                 </div>
             </div>
+            @endcanany
 
-            @canany(['Create-Employee','Read-Employees', 'Create-Employee','Read-Employee'])
+            @canany(['Create-Employee','Read-Employees'])
             <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
                 <span class="menu-link">
                     <span class="menu-icon">
@@ -243,6 +255,7 @@
                     <span class="menu-arrow"></span>
                 </span>
                 <div class="menu-sub menu-sub-accordion menu-active-bg">
+                    @canany(['Read-Employees'])
                     <div class="menu-item">
                         <a class="menu-link" href="{{route('employee.index')}}">
                             <span class="menu-bullet">
@@ -251,6 +264,8 @@
                             <span class="menu-title">{{__('site.employee_list')}}</span>
                         </a>
                     </div>
+                    @endcanany
+                    @canany(['Create-Employee'])
                     <div class="menu-item">
                         <a class="menu-link" href="{{route('employee.create')}}">
                             <span class="menu-bullet">
@@ -259,13 +274,14 @@
                             <span class="menu-title">{{__('site.add_employee')}}</span>
                         </a>
                     </div>
+                    @endcanany
 
                 </div>
             </div>
             @endcanany
 
 
-            @endhasrole
+            {{-- @endhasrole --}}
             {{-- ======================== end HR ========================= --}}
 
             {{-- ======================== seller ========================= --}}
@@ -305,6 +321,7 @@
                             <span class="menu-title">{{__('site.account')}}</span>
                         </a>
                     </div>
+                    @canany(['Read-Shippments'])
                     <div class="menu-item">
                         <a class="menu-link" href="{{route('shipment.index')}}">
                             <span class="menu-bullet">
@@ -313,6 +330,9 @@
                             <span class="menu-title">{{__('site.shipment')}}</span>
                         </a>
                     </div>
+                    @endcanany
+
+                    @canany(['Read-Pickups'])
                     <div class="menu-item">
                         <a class="menu-link" href="{{route('pickup.index')}}">
                             <span class="menu-bullet">
@@ -321,6 +341,7 @@
                             <span class="menu-title">{{__('site.pickup')}}</span>
                         </a>
                     </div>
+                    @endcanany
                 </div>
             </div>
             @endhasrole

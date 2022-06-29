@@ -174,7 +174,7 @@
                     <!--end::Svg Icon-->Export
                 </button>
                 <!--begin::Add shipment-->
-
+                @canany(['Create-Shippment'])
                 <a href="{{route('shipment.create')}}" class="btn btn-primary">
                     <!--begin::Svg Icon | path: icons/duotune/arrows/arr075.svg-->
                     <span class="svg-icon svg-icon-2">
@@ -187,7 +187,7 @@
                     <!--end::Svg Icon-->{{__('site.add_shipment')}}
                 </a>
                 <!--end::Add shipment-->
-
+                @endcanany
             </div>
             <!--end::Toolbar-->
             <!--begin::Group actions-->
@@ -358,18 +358,24 @@
                         <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-bold fs-7 w-125px py-4"
                             data-kt-menu="true">
                             <!--begin::Menu item-->
+                            @canany(['Show-Shippment'])
                             <div class="menu-item px-3">
                                 <a href="{{route('shipment.show',$shipment->id)}}" class="menu-link px-3">show</a>
                             </div>
+                            @endcanany
+                            @canany(['update-Shippment'])
                             <div class="menu-item px-3">
                                 <a href="{{route('shipment.edit',$shipment->id)}}" class="menu-link px-3">Edit</a>
                             </div>
+                            @endcanany
                             <!--end::Menu item-->
                             <!--begin::Menu item-->
+                            @canany(['Delete-Shippment'])
                             <div class="menu-item px-3">
                                 <a href="#" onclick="confirmDelete('{{$shipment->id}}',this)" class="menu-link px-3"
                                     data-kt-users-table-filter="delete_row">Delete</a>
                             </div>
+                            @endcanany
                             <!--end::Menu item-->
                         </div>
                         <!--end::Menu-->

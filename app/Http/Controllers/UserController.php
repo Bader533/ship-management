@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
@@ -19,8 +20,12 @@ class UserController extends Controller
      */
     public function index()
     {
-        $user = User::all();
-        return view('Dashboard.admin.seller.index', ['user' => $user]);
+        if (!Gate::allows('Read-Users')) {
+            abort(403);
+        } else {
+            $user = User::all();
+            return view('Dashboard.admin.seller.index', ['user' => $user]);
+        }
     }
 
     /**
@@ -30,9 +35,13 @@ class UserController extends Controller
      */
     public function create()
     {
-        $city = City::all();
-        $roles = Role::where('guard_name', '=', 'web')->get();
-        return view('Dashboard.admin.seller.create', ['city' => $city, 'roles' => $roles]);
+        if (!Gate::allows('Create-User')) {
+            abort(403);
+        } else {
+            $city = City::all();
+            $roles = Role::where('guard_name', '=', 'web')->get();
+            return view('Dashboard.admin.seller.create', ['city' => $city, 'roles' => $roles]);
+        }
     }
 
     /**
@@ -43,38 +52,42 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator($request->all(), [
-
-            'name' => 'required | max:50',
-            'email' => 'string |required| min:2 |max:20',
-            'phone' => 'required |numeric|digits:11',
-            'password' => 'required',
-            'role_id' => 'required|numeric|exists:roles,id',
-        ]);
-        if (!$validator->fails()) {
-            $user = new User();
-            $user->name = $request->input('name');
-            $user->email = $request->input('email') . '@shipexeg.com';
-            $user->phone = $request->input('phone');
-            if (!$request->input('special_pickup')) {
-                $user->special_pickup = 10;
-            } else {
-                $user->special_pickup = $request->input('special_pickup');
-            }
-
-            $user->password = Hash::make($request->input('password'));
-            $isSaved = $user->save();
-            if ($isSaved) {
-                $user->syncRoles(Role::findById($request->input('role_id'), 'web'));
-            }
-            return response()->json(
-                [
-                    'message' => $isSaved ? 'User created successfully' : 'Create failed!'
-                ],
-                $isSaved ? Response::HTTP_CREATED : Response::HTTP_BAD_REQUEST,
-            );
+        if (!Gate::allows('Create-User')) {
+            abort(403);
         } else {
-            return response()->json(['message' => $validator->getMessageBag()->first()], Response::HTTP_BAD_REQUEST);
+            $validator = Validator($request->all(), [
+
+                'name' => 'required | max:50',
+                'email' => 'string |required| min:2 |max:20',
+                'phone' => 'required |numeric|digits:11',
+                'password' => 'required',
+                'role_id' => 'required|numeric|exists:roles,id',
+            ]);
+            if (!$validator->fails()) {
+                $user = new User();
+                $user->name = $request->input('name');
+                $user->email = $request->input('email') . '@shipexeg.com';
+                $user->phone = $request->input('phone');
+                if (!$request->input('special_pickup')) {
+                    $user->special_pickup = 10;
+                } else {
+                    $user->special_pickup = $request->input('special_pickup');
+                }
+
+                $user->password = Hash::make($request->input('password'));
+                $isSaved = $user->save();
+                if ($isSaved) {
+                    $user->syncRoles(Role::findById($request->input('role_id'), 'web'));
+                }
+                return response()->json(
+                    [
+                        'message' => $isSaved ? 'User created successfully' : 'Create failed!'
+                    ],
+                    $isSaved ? Response::HTTP_CREATED : Response::HTTP_BAD_REQUEST,
+                );
+            } else {
+                return response()->json(['message' => $validator->getMessageBag()->first()], Response::HTTP_BAD_REQUEST);
+            }
         }
     }
 
@@ -96,9 +109,13 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        $user = User::findOrFail($id);
-        $roles = Role::where('guard_name', '=', 'web')->get();
-        return view('Dashboard.admin.seller.edit', ['user' => $user, 'roles' => $roles]);
+        if (!Gate::allows('Update-User')) {
+            abort(403);
+        } else {
+            $user = User::findOrFail($id);
+            $roles = Role::where('guard_name', '=', 'web')->get();
+            return view('Dashboard.admin.seller.edit', ['user' => $user, 'roles' => $roles]);
+        }
     }
 
     /**
@@ -110,38 +127,42 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-
-        $validator = Validator($request->all(), [
-            'name' => ' max:50',
-            'email' => 'string | min:2 |max:20',
-            'phone' => 'numeric |digits:11',
-            'special_pickup' => 'numeric',
-            'role_id' => 'required|numeric|exists:roles,id',
-
-
-        ]);
-
-        if (!$validator->fails()) {
-
-            $user->name = $request->input('name');
-            $user->email = $request->input('email') . '@shipexeg.com';
-            $user->phone = $request->input('phone');
-            $user->password = Hash::make($request->input('password'));
-            $user->special_pickup = $request->input('special_pickup');
-            $isSaved = $user->save();
-            if ($isSaved) {
-                $user->syncRoles(Role::findById($request->input('role_id'), 'web'));
-            }
-
-
-            return response()->json(
-                [
-                    'message' => $isSaved ? 'user updated successfully' : 'updated failed!'
-                ],
-                $isSaved ? Response::HTTP_CREATED : Response::HTTP_BAD_REQUEST,
-            );
+        if (!Gate::allows('Update-User')) {
+            abort(403);
         } else {
-            return response()->json(['message' => $validator->getMessageBag()->first()], Response::HTTP_BAD_REQUEST);
+
+            $validator = Validator($request->all(), [
+                'name' => ' max:50',
+                'email' => 'string | min:2 |max:20',
+                'phone' => 'numeric |digits:11',
+                'special_pickup' => 'numeric',
+                'role_id' => 'required|numeric|exists:roles,id',
+
+
+            ]);
+
+            if (!$validator->fails()) {
+
+                $user->name = $request->input('name');
+                $user->email = $request->input('email') . '@shipexeg.com';
+                $user->phone = $request->input('phone');
+                $user->password = Hash::make($request->input('password'));
+                $user->special_pickup = $request->input('special_pickup');
+                $isSaved = $user->save();
+                if ($isSaved) {
+                    $user->syncRoles(Role::findById($request->input('role_id'), 'web'));
+                }
+
+
+                return response()->json(
+                    [
+                        'message' => $isSaved ? 'user updated successfully' : 'updated failed!'
+                    ],
+                    $isSaved ? Response::HTTP_CREATED : Response::HTTP_BAD_REQUEST,
+                );
+            } else {
+                return response()->json(['message' => $validator->getMessageBag()->first()], Response::HTTP_BAD_REQUEST);
+            }
         }
     }
 
@@ -153,11 +174,15 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        $user = User::findOrFail($id);
-        $isDeleted = $user->delete();
-        return response()->json(
-            ['message' => $isDeleted ? 'Deleted successfully' : 'Delete failed!'],
-            $isDeleted ? Response::HTTP_OK : Response::HTTP_BAD_REQUEST
-        );
+        if (!Gate::allows('Delete-User')) {
+            abort(403);
+        } else {
+            $user = User::findOrFail($id);
+            $isDeleted = $user->delete();
+            return response()->json(
+                ['message' => $isDeleted ? 'Deleted successfully' : 'Delete failed!'],
+                $isDeleted ? Response::HTTP_OK : Response::HTTP_BAD_REQUEST
+            );
+        }
     }
 }

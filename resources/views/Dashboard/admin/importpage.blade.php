@@ -90,7 +90,7 @@
         <!--end::Card title-->
         <div class="card-toolbar">
             <div class="d-flex justify-content-end" data-kt-user-table-toolbar="base">
-                <a href="{{asset('assets/Shippments.xlsx')}}" class="btn btn-primary" download>
+                <a class="btn btn-primary" download href="{{route('download.Excel')}}">
                     <!--begin::Svg Icon | path: icons/duotune/arrows/arr075.svg-->
                     <span class="svg-icon svg-icon-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">

@@ -167,6 +167,7 @@
                     <!--end::Svg Icon-->Export
                 </button>
                 <!--begin::Add shipment-->
+                @canany(['Create-Driver'])
 
                 <a href="{{route('driver.create')}}" class="btn btn-primary">
                     <!--begin::Svg Icon | path: icons/duotune/arrows/arr075.svg-->
@@ -179,6 +180,8 @@
                     </span>
                     <!--end::Svg Icon-->{{__('site.add_driver')}}
                 </a>
+                @endcanany
+
                 <!--end::Add shipment-->
 
             </div>
@@ -257,7 +260,7 @@
                     </td>
 
 
-                    <td>{{$driver->roles[0]->name}}</td>
+                    {{-- <td>{{$driver->roles[0]->name}}</td> --}}
 
                     <!--begin::Action=-->
                     <td class="text-end">
@@ -281,16 +284,20 @@
                             {{-- <div class="menu-item px-3">
                                 <a href="{{route('shipment.show',$user->id)}}" class="menu-link px-3">show</a>
                             </div> --}}
+                            @canany(['Update-Driver'])
                             <div class="menu-item px-3">
                                 <a href="{{route('driver.edit',$driver->id)}}"
                                     class="menu-link px-3">{{__('site.edit')}}</a>
                             </div>
+                            @endcanany
                             <!--end::Menu item-->
                             <!--begin::Menu item-->
+                            @canany(['Delete-Driver'])
                             <div class="menu-item px-3">
                                 <a href="#" onclick="confirmDelete('{{$driver->id}}',this)" class="menu-link px-3"
                                     data-kt-users-table-filter="delete_row">Delete</a>
                             </div>
+                            @endcanany
                             <!--end::Menu item-->
                         </div>
                         <!--end::Menu-->

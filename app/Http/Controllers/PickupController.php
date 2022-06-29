@@ -9,6 +9,7 @@ use App\Models\Shippment;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Symfony\Component\HttpFoundation\Response;
 
 
@@ -21,9 +22,12 @@ class PickupController extends Controller
      */
     public function index()
     {
-
-        $pickup = Pickup::where('user_id', auth()->user()->id)->get();
-        return view('Dashboard.user.pickup.index', ['pickup' => $pickup]);
+        if (!Gate::allows('Read-Pickups')) {
+            abort(403);
+        } else {
+            $pickup = Pickup::where('user_id', auth()->user()->id)->get();
+            return view('Dashboard.user.pickup.index', ['pickup' => $pickup]);
+        }
     }
 
     /**
@@ -33,11 +37,14 @@ class PickupController extends Controller
      */
     public function create()
     {
-        $address = Address::where('user_id', auth()->user()->id)->get();
-        $shipment = Shippment::where('status', 'created')->count();
-        $city = City::all();
-
-        return view('Dashboard.user.pickup.create', ['address' => $address, 'shipment' => $shipment, 'city' => $city]);
+        if (!Gate::allows('Create-Pickup')) {
+            abort(403);
+        } else {
+            $address = Address::where('user_id', auth()->user()->id)->get();
+            $shipment = Shippment::where('status', 'created')->count();
+            $city = City::all();
+            return view('Dashboard.user.pickup.create', ['address' => $address, 'shipment' => $shipment, 'city' => $city]);
+        }
     }
 
     /**
@@ -49,45 +56,48 @@ class PickupController extends Controller
     //store data pick up and change the shipment status to picked up
     public function store(Request $request)
     {
-
-        $validator = Validator($request->all(), [
-            'name' => 'required',
-            // 'email' => 'required',
-            'phone' => 'required',
-            'address' => 'required',
-            'time' => 'required',
-            'date' => 'required',
-            'note' => 'max:150',
-        ]);
-        $shipment = Shippment::where('user_id', auth()->user()->id)->where('status', 'created')->get();
-        if (!$validator->fails()) {
-            foreach ($shipment as $shipment) {
-                if ($shipment->status == 'created') {
-                    $shipment->status = 'requested';
-                    $updated = $shipment->save();
-                }
-            }
-            $pickup = new Pickup();
-            $pickup->name = $request->input('name');
-            $pickup->status = 'requested';
-            $pickup->email = $request->input('email');
-            $pickup->phone = $request->input('phone');
-            $pickup->address_id = $request->input('address');
-            $pickup->time = Carbon::parse($request->input('time'));
-            $pickup->date = Carbon::parse($request->input('date'));
-            $pickup->user_id = $request->input('user_id');
-            $pickup->note = $request->input('note');
-            $pickup->package = $request->input('package');
-            $isSaved = $pickup->save();
-
-            return response()->json(
-                [
-                    'message' => $isSaved ? 'Pick up created successfully' : 'Create failed!'
-                ],
-                $isSaved ? Response::HTTP_CREATED : Response::HTTP_BAD_REQUEST,
-            );
+        if (!Gate::allows('Create-Pickup')) {
+            abort(403);
         } else {
-            return response()->json(['message' => $validator->getMessageBag()->first()], Response::HTTP_BAD_REQUEST);
+            $validator = Validator($request->all(), [
+                'name' => 'required',
+                // 'email' => 'required',
+                'phone' => 'required',
+                'address' => 'required',
+                'time' => 'required',
+                'date' => 'required',
+                'note' => 'max:150',
+            ]);
+            $shipment = Shippment::where('user_id', auth()->user()->id)->where('status', 'created')->get();
+            if (!$validator->fails()) {
+                foreach ($shipment as $shipment) {
+                    if ($shipment->status == 'created') {
+                        $shipment->status = 'requested';
+                        $updated = $shipment->save();
+                    }
+                }
+                $pickup = new Pickup();
+                $pickup->name = $request->input('name');
+                $pickup->status = 'requested';
+                $pickup->email = $request->input('email');
+                $pickup->phone = $request->input('phone');
+                $pickup->address_id = $request->input('address');
+                $pickup->time = Carbon::parse($request->input('time'));
+                $pickup->date = Carbon::parse($request->input('date'));
+                $pickup->user_id = $request->input('user_id');
+                $pickup->note = $request->input('note');
+                $pickup->package = $request->input('package');
+                $isSaved = $pickup->save();
+
+                return response()->json(
+                    [
+                        'message' => $isSaved ? 'Pick up created successfully' : 'Create failed!'
+                    ],
+                    $isSaved ? Response::HTTP_CREATED : Response::HTTP_BAD_REQUEST,
+                );
+            } else {
+                return response()->json(['message' => $validator->getMessageBag()->first()], Response::HTTP_BAD_REQUEST);
+            }
         }
     }
 
@@ -99,9 +109,12 @@ class PickupController extends Controller
      */
     public function show(Pickup $pickup)
     {
-
-        $pickups = Pickup::findOrFail($pickup->id);
-        return view('Dashboard.user.pickup.show', ['pickup' => $pickups]);
+        if (!Gate::allows('Show-Shippment')) {
+            abort(403);
+        } else {
+            $pickups = Pickup::findOrFail($pickup->id);
+            return view('Dashboard.user.pickup.show', ['pickup' => $pickups]);
+        }
     }
 
     /**
@@ -124,15 +137,19 @@ class PickupController extends Controller
      */
     public function update(Request $request, Pickup $pickup)
     {
-        $pickup->status = 'pickedup';
-        $isSaved = $pickup->save();
+        if (!Gate::allows('Update-Pickup')) {
+            abort(403);
+        } else {
+            $pickup->status = 'pickedup';
+            $isSaved = $pickup->save();
 
-        return response()->json(
-            [
-                'message' => $isSaved ? 'Pick up delivered successfully' : 'delivered failed!'
-            ],
-            $isSaved ? Response::HTTP_CREATED : Response::HTTP_BAD_REQUEST,
-        );
+            return response()->json(
+                [
+                    'message' => $isSaved ? 'Pick up delivered successfully' : 'delivered failed!'
+                ],
+                $isSaved ? Response::HTTP_CREATED : Response::HTTP_BAD_REQUEST,
+            );
+        }
     }
 
     /**
