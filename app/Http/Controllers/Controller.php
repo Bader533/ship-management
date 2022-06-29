@@ -953,35 +953,40 @@ class Controller extends BaseController
         return view('Dashboard.user.address', ['city' => $city]);
     }
 
-    function exportShippment()
-    {
+    // function exportShippment()
+    // {
 
-        // $startDate = $request->from;
-        // $endDate = $request->to;
 
-        $date = date('Y-m-d H:i:s');
-        return Excel::download(new ShippmentsExport(), 'shippment_' . $date . '.xlsx');
-    }
+    //     $date = date('Y-m-d H:i:s');
+    //     return Excel::download(new ShippmentsExport(), 'shippment_' . $date . '.xlsx');
+    // }
 
     //import data
     function viewimport()
     {
-        return view('Dashboard.admin.importpage');
+        if (!Gate::allows('Create-Shippment')) {
+            abort(403);
+        } else {
+            return view('Dashboard.admin.importpage');
+        }
     }
     function importShippment(Request $request)
     {
-        $request->validate([
-            'file' => 'required|mimes:xlsx,xls',
-        ]);
+        if (!Gate::allows('Create-Shippment')) {
+            abort(403);
+        } else {
+            $request->validate([
+                'file' => 'required|mimes:xlsx,xls',
+            ]);
 
-        $file = $request->file('file')->path();
-        $import = new ShippmentImport;
-        $import->import($file);
+            $file = $request->file('file')->path();
+            $import = new ShippmentImport;
+            $import->import($file);
 
-        // Excel::import(new ShippmentImport, $path);
+            // Excel::import(new ShippmentImport, $path);
 
-        return redirect()->back();
-
+            return redirect()->back();
+        }
 
         // return redirect()->back()->withErrors(
         //     [
@@ -991,8 +996,12 @@ class Controller extends BaseController
     }
     function downloadExcel()
     {
-        $path = Storage::disk('public')->path('excel/ship.xlsx');
-        $headers = file_get_contents($path);
-        return Response($headers)->withHeaders(['Content-Type' => mime_content_type($path)]);
+        if (!Gate::allows('Create-Shippment')) {
+            abort(403);
+        } else {
+            $path = Storage::disk('public')->path('excel/ship.xlsx');
+            $headers = file_get_contents($path);
+            return Response($headers)->withHeaders(['Content-Type' => mime_content_type($path)]);
+        }
     }
 }

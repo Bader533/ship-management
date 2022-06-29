@@ -121,15 +121,6 @@ Route::group(
 
             Route::get('address', [Controller::class, 'getCity'])->name('getCity');
             Route::get('download-Excel', [Controller::class, 'downloadExcel'])->name('download.Excel');
-            // Route::get('download', function () {
-            //     $path = Storage::disk('public')->path('excel/ship.xlsx');
-            //     $headers = file_get_contents($path);
-            //     return Response($headers)->withHeaders(['Content-Type' => mime_content_type($path)]);
-            // });
-
-
-
-
 
             // Route::get('export', [Controller::class, 'exportShippment'])->name('export_shippment');
 
