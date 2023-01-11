@@ -43,7 +43,7 @@ class AssignedpickupController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request);
+        // dd($request); 
 
         $validator = Validator($request->all(), [
             'driver_id' => 'required',

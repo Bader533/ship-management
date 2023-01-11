@@ -22,13 +22,6 @@ class AccountSellerController extends Controller
             ->orWhereNull('pickup_id')->get();
         $specialprice = Specialprice::all();
         $users = User::all();
-        // dd($shipments);
-
-        // $shipments = AccountSeller::with('shippment', 'pickup')->where(function ($query) {
-        //     $query->whereIn('shippment_id', '!=', null);
-        // })->where(function ($query) {
-        //     $query->orWhereNull('pickup_id');
-        // })->get();
 
         return view('Dashboard.admin.accountseller.accountsellers', ['shipment' => $shipments, 'users' => $users, 'specialprice' => $specialprice]);
     }

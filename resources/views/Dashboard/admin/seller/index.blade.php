@@ -352,6 +352,7 @@
             });
             reference.closest('tr').remove();
             location.reload();
+            //...
         })
         .catch(function (error) {
         //4xx - 5xx

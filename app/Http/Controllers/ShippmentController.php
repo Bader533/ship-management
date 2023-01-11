@@ -203,7 +203,7 @@ class ShippmentController extends Controller
      */
     public function destroy($id)
     {
-        if (!Gate::allows('Delete-Shippment')) {
+        if (!Gate::allows('Delete-Shippment ')) {
             abort(403);
         } else {
             $shippment = Shippment::findOrFail($id);
